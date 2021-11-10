@@ -1,0 +1,553 @@
+@prefix ns:	<model/ontologies/namespace/#> .
+@prefix adm:	<https://w3id.org/atomgraph/linkeddatahub/admin#> .
+@prefix lacl:	<https://w3id.org/atomgraph/linkeddatahub/admin/acl/domain#> .
+@prefix lsm:	<https://w3id.org/atomgraph/linkeddatahub/admin/sitemap/domain#> .
+@prefix def:	<https://w3id.org/atomgraph/linkeddatahub/default#> .
+@prefix apl:	<https://w3id.org/atomgraph/linkeddatahub/domain#> .
+@prefix a:	<https://w3id.org/atomgraph/core#> .
+@prefix rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:	<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:	<http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:	<http://www.w3.org/2002/07/owl#> .
+@prefix acl:	<http://www.w3.org/ns/auth/acl#> .
+@prefix cert:	<http://www.w3.org/ns/auth/cert#> .
+@prefix ldt:	<https://www.w3.org/ns/ldt#> .
+@prefix c:	<https://www.w3.org/ns/ldt/core/domain#> .
+@prefix dh:	<https://www.w3.org/ns/ldt/document-hierarchy/domain#> .
+@prefix sp:	<http://spinrdf.org/sp#> .
+@prefix spin:	<http://spinrdf.org/spin#> .
+@prefix sioc:	<http://rdfs.org/sioc/ns#> .
+@prefix foaf:	<http://xmlns.com/foaf/0.1/> .
+@prefix dct:	<http://purl.org/dc/terms/> .
+
+<>
+{
+
+    <> a adm:Container ;
+        dct:title "Root" ;
+        dct:description "Root container" .
+
+}
+
+<queries/>
+{
+
+    <queries/> a adm:Container ;
+        dct:title "Queries" ;
+        dct:description "SPARQL queries" .
+
+}
+
+<queries/default/>
+{
+
+    <queries/default/> a adm:Container ;
+        sioc:has_parent <queries/> ;
+        dct:title "Default" ;
+        dct:description "Default queries" .
+
+}
+
+<sign%20up>
+{
+
+    <sign%20up> a adm:SignUp ;
+        dct:title "Sign up" ;
+        apl:content <sign%20up#content> .
+
+    <sign%20up#content> a apl:Content ;
+        rdf:first """<div xmlns="http://www.w3.org/1999/xhtml">
+    <p class="lead">Welcome. Create your free account and join the web of data.</p>
+    <p>LinkedDataHub uses WebID as the single sign-on (SSO) protocol for distributed applications, which is based on
+        authentication using client certficates. <a href="http://webid.info">Read more about WebID</a>.</p>
+    <div class="alert alert-info">
+        <p>Unlike most LinkedDataHub resources, your WebID profile will have <em>public access</em> as required by the
+        protocol. We will hide your email address however.</p>
+    </div>
+    </div>"""^^rdf:XMLLiteral ;
+        rdf:rest rdf:nil .
+
+}
+
+<request%20access>
+{
+
+    <request%20access> a adm:RequestAccess ;
+        dct:title "Request access" ;
+        apl:content <request%20access#content> .
+
+    <request%20access#content> a apl:Content ;
+        rdf:first """<div xmlns="http://www.w3.org/1999/xhtml">
+    <p class="lead">Request access</p>
+    <p>Ask for access to a restricted resource by making a request. It will be reviewed by the application's
+        administrators.</p>
+    </div>"""^^rdf:XMLLiteral ;
+        rdf:rest rdf:nil .
+
+}
+
+<oauth2/login>
+{
+
+    <oauth2/login> a adm:OAuth2Login ;
+        dct:title "OAuth 2.0 login" .
+
+}
+
+<oauth2/authorize/google>
+{
+
+    <oauth2/authorize/google> a adm:AuthorizeGoogle ;
+        dct:title "Google OAuth2.0 authorization" .
+
+}
+
+# QUERIES
+
+# select children
+
+<queries/default/select-children/>
+{
+
+    <queries/default/select-children/> a adm:Item ;
+        sioc:has_container <queries/default/> ;
+        dct:title "Select children" ;
+        foaf:primaryTopic <queries/default/select-children/#this> .
+
+    <queries/default/select-children/#this> a adm:Select ;
+        foaf:isPrimaryTopicOf <queries/default/select-children/> ;
+        dct:title "Select children" ;
+        sp:text """
+    PREFIX  dct:  <http://purl.org/dc/terms/>
+    PREFIX  sioc: <http://rdfs.org/sioc/ns#>
+    PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+
+    SELECT DISTINCT  ?child ?title ?thing
+    WHERE
+    { GRAPH ?childGraphGraph
+      {   { ?child  sioc:has_parent  ?this }
+        UNION
+          { ?child  sioc:has_container  ?this }
+      }
+    GRAPH ?childGraph
+      { ?child  a                     ?Type
+        OPTIONAL
+          { ?child  dct:title  ?title }
+        OPTIONAL
+          { ?child  foaf:primaryTopic ?thing }
+      }
+    }
+    """ .
+
+}
+
+# select labelled
+
+<queries/default/select-labelled/>
+{
+
+    <queries/default/select-labelled/> a adm:Item ;
+        sioc:has_container <queries/default/> ;
+        dct:title "Select labelled" ;
+        foaf:primaryTopic <queries/default/select-labelled/#this> .
+
+    <queries/default/select-labelled/#this> a adm:Select ;
+        foaf:isPrimaryTopicOf <queries/default/select-labelled/> ;
+        dct:title "Select labelled" ;
+        sp:text """
+    PREFIX  dct:  <http://purl.org/dc/terms/>
+    PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX  skos: <http://www.w3.org/2004/02/skos/core#>
+    PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX  sioc: <http://rdfs.org/sioc/ns#>
+    PREFIX  dc:   <http://purl.org/dc/elements/1.1/>
+
+    SELECT DISTINCT  ?resource ?label
+    WHERE
+    { GRAPH ?graph
+      { ?resource a ?Type .
+        ?resource (((((((rdfs:label|dc:title)|dct:title)|foaf:name)|foaf:givenName)|foaf:familyName)|sioc:name)|skos:prefLabel)|sioc:content ?label
+        FILTER isURI(?resource)
+        OPTIONAL
+          { ?resource  dct:created  ?created }
+      }
+    }""" .
+
+}
+
+### ACL ###
+
+<acl/>
+{
+
+    <acl/> a adm:Container ;
+        sioc:has_parent <> ;
+        dct:title "Access control" ;
+        dct:description "Manage agents, user accounts and authorizations" .
+
+}
+
+<acl/authorizations/>
+{
+
+    <acl/authorizations/> a adm:Container ;
+        sioc:has_parent <acl/> ;
+        dct:title "Authorizations" ;
+        dct:description "Manage who has access to which resources" .
+
+}
+
+<acl/authorization-requests/>
+{
+
+    <acl/authorization-requests/> a adm:Container ;
+        sioc:has_parent <acl/> ;
+        dct:title "Authorization requests" ;
+        dct:description "Manage who has access to which resources" .
+
+}
+
+<acl/agents/>
+{
+
+    <acl/agents/> a adm:Container ;
+        sioc:has_parent <acl/> ;
+        dct:title "Agents" ;
+        dct:description "Manage people and software agents that have access" .
+
+}
+
+<acl/public-keys/>
+{
+
+    <acl/public-keys/> a adm:Container ;
+        sioc:has_parent <acl/> ;
+        dct:title "Public keys" ;
+        dct:description "Manage RSA public keys" .
+
+}
+
+<acl/users/>
+{
+
+    <acl/users/> a adm:Container ;
+        sioc:has_parent <acl/> ;
+        dct:title "Users" ;
+        dct:description "Manage agent user accounts and credentials" .
+
+}
+
+<acl/groups/>
+{
+
+    <acl/groups/> a adm:Container ;
+        sioc:has_parent <acl/> ;
+        dct:title "Groups" ;
+        dct:description "Manage agent groups that have access" .
+
+}
+
+# AUTHORIZATIONS
+
+# public
+
+<acl/authorizations/public/>
+{
+
+    <acl/authorizations/public/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Public access" ;
+        foaf:primaryTopic <acl/authorizations/public/#this> .
+
+    <acl/authorizations/public/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/public/> ;
+        rdfs:label "Public access" ;
+        rdfs:comment "Allows unauthorized access" ;
+        acl:accessTo <model/ontologies/namespace/> ; # end-user ontologies are public
+        acl:mode acl:Read ;
+        acl:agentClass foaf:Agent, acl:AuthenticatedAgent .
+
+}
+
+# sign up
+
+<acl/authorizations/sign-up/>
+{
+
+    <acl/authorizations/sign-up/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Signup access" ;
+        foaf:primaryTopic <acl/authorizations/sign-up/#this> .
+
+    <acl/authorizations/sign-up/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/sign-up/> ;
+        rdfs:label "Signup access" ;
+        rdfs:comment "Required to enable public signup" ;
+        acl:accessToClass adm:SignUp ;
+        acl:mode acl:Read, acl:Append ;
+        acl:agentClass foaf:Agent .
+
+}
+
+# request access
+
+<acl/authorizations/request-access/>
+{
+
+    <acl/authorizations/request-access/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Authorization request access" ;
+        foaf:primaryTopic <acl/authorizations/request-access/#this> .
+
+    <acl/authorizations/request-access/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/request-access/> ;
+        rdfs:label "Request access" ;
+        rdfs:comment "Required to enable authorization requests" ;
+        acl:accessToClass adm:RequestAccess ;
+        acl:mode acl:Read, acl:Append ;
+        acl:agentClass acl:AuthenticatedAgent . # not public, Agent must be authenticated
+
+}
+
+# OAuth2 login
+
+<acl/authorizations/oauth2-login/>
+{
+
+    <acl/authorizations/oauth2-login/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "OAuth2 login access" ;
+        foaf:primaryTopic <acl/authorizations/oauth2-login/#this> .
+
+    <acl/authorizations/oauth2-login/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/oauth2-login/> ;
+        rdfs:label "OAuth2 login access" ;
+        rdfs:comment "Required to enable public OAuth2 login" ;
+        acl:accessToClass adm:OAuth2Login ;
+        acl:mode acl:Read ;
+        acl:agentClass foaf:Agent .
+
+}
+
+# Google authorization
+
+<acl/authorizations/authorize-google/>
+{
+
+    <acl/authorizations/authorize-google/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Google's OAuth2 authorization" ;
+        foaf:primaryTopic <acl/authorizations/authorize-google/#this> .
+
+    <acl/authorizations/authorize-google/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/authorize-google/> ;
+        rdfs:label "Google's OAuth2 authorization" ;
+        rdfs:comment "Required to enable public OAuth2 login" ;
+        acl:accessToClass adm:AuthorizeGoogle ;
+        acl:mode acl:Read ;
+        acl:agentClass foaf:Agent .
+
+}
+
+# append authorization request
+
+<acl/authorizations/append-request/>
+{
+
+    <acl/authorizations/append-request/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Append authorization request" ;
+        foaf:primaryTopic <acl/authorizations/append-request/#this> .
+
+    <acl/authorizations/append-request/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/append-request/> ;
+        rdfs:label "Append authorization request" ;
+        rdfs:comment "Required to enable authorization requests" ;
+        acl:accessTo <acl/authorization-requests/> ;
+        acl:mode acl:Append ;
+        acl:agentClass acl:AuthenticatedAgent . # not public, Agent must be authenticated
+
+}
+
+# full access
+
+
+<acl/authorizations/full-control/>
+{
+
+    <acl/authorizations/full-control/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Full control" ;
+        foaf:primaryTopic <acl/authorizations/full-control/#this> .
+
+    <acl/authorizations/full-control/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/full-control/> ;
+        rdfs:label "Full control" ;
+        rdfs:comment "Allows full read/write access to all application resources" ;
+        acl:accessToClass def:Item, def:Container, def:Root ;
+        acl:accessTo <../sparql>, <../service>, <../imports>, <../add>, <../clone> ;
+        acl:mode acl:Read, acl:Append, acl:Write, acl:Control ;
+        acl:agentGroup <acl/groups/owners/#this> .
+
+}
+
+# write/append access
+
+<acl/authorizations/write-append/>
+{
+
+    <acl/authorizations/write-append/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Write/append access" ;
+        foaf:primaryTopic <acl/authorizations/write-append/#this> .
+
+    <acl/authorizations/write-append/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/write-append/> ;
+        rdfs:label "Write/append access" ;
+        rdfs:comment "Allows write access to all documents and containers" ;
+        acl:accessToClass def:Item, def:Container, def:Root ;
+        acl:accessTo <../sparql>, <../service>, <../imports>, <../add>, <../clone> ;
+        acl:mode acl:Write, acl:Append ;
+        acl:agentGroup <acl/groups/owners/#this>, <acl/groups/writers/#this> .
+
+}
+
+# read access
+
+<acl/authorizations/read/>
+{
+
+    <acl/authorizations/read/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Read access" ;
+        foaf:primaryTopic <acl/authorizations/read/#this> .
+
+    <acl/authorizations/read/#this> a adm:Authorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/read/> ;
+        rdfs:label "Read access" ;
+        rdfs:comment "Allows read access to all resources" ;
+        acl:accessToClass def:Item, def:Container, def:Root, def:File ;
+        acl:accessTo <../sparql>, <../service>, <../imports>, <../add>, <../clone> ;
+        acl:mode acl:Read ;
+        acl:agentGroup <acl/groups/owners/#this>, <acl/groups/writers/#this>, <acl/groups/readers/#this> .
+
+}
+
+# creator access
+
+<acl/authorizations/creator/>
+{
+
+    <acl/authorizations/creator/> a adm:Item ;
+        sioc:has_container <acl/authorizations/> ;
+        dct:title "Creator access" ;
+        foaf:primaryTopic <acl/authorizations/creator/#this> .
+
+    <acl/authorizations/creator/#this> a adm:CreatorAuthorization ;
+        foaf:isPrimaryTopicOf <acl/authorizations/creator/> ;
+        rdfs:label "Creator access" ;
+        rdfs:comment "Creators have full control of their created resources" ;
+        lacl:accessProperty foaf:maker ;
+        acl:accessToClass def:Item, def:Container, def:Root ;
+        acl:agentClass acl:AuthenticatedAgent .
+
+}
+
+# GROUPS
+
+# owners
+
+<acl/groups/owners/>
+{
+
+    <acl/groups/owners/> a adm:Item ;
+        sioc:has_container <acl/groups/> ;
+        dct:title "Owners" ;
+        foaf:primaryTopic <acl/groups/owners/#this> .
+
+    <acl/groups/owners/#this> a adm:Group ;
+        foaf:name "Owners" ;
+        dct:description "Group of agents that own the application" ;
+        foaf:isPrimaryTopicOf <acl/groups/owners/> .
+
+}
+
+# writers
+
+<acl/groups/writers/>
+{
+
+    <acl/groups/writers/> a adm:Item ;
+        sioc:has_container <acl/groups/> ;
+        dct:title "Writers" ;
+        foaf:primaryTopic <acl/groups/writers/#this> .
+
+    <acl/groups/writers/#this> a adm:Group ;
+        foaf:name "Writers" ;
+        dct:description "Group of agents that have write access" ;
+        foaf:isPrimaryTopicOf <acl/groups/writers/> .
+
+}
+
+# readers
+
+<acl/groups/readers/>
+{
+
+    <acl/groups/readers/> a adm:Item ;
+        sioc:has_container <acl/groups/> ;
+        dct:title "Readers" ;
+        foaf:primaryTopic <acl/groups/readers/#this> .
+
+    <acl/groups/readers/#this> a adm:Group ;
+        foaf:name "Readers" ;
+        dct:description "Group of agents that have read access" ;
+        foaf:isPrimaryTopicOf <acl/groups/readers/> .
+
+}
+
+### MODEL ###
+
+# CONTAINERS
+
+<model/>
+{
+
+    <model/> a adm:Container ;
+        sioc:has_parent <> ;
+        dct:title "Model" ;
+        dct:description "Manage application model: classes, properties, constraints etc." .
+
+}
+
+<model/ontologies/>
+{
+
+    <model/ontologies/> a adm:Container ;
+        sioc:has_parent <model/> ;
+        dct:title "Ontologies" ;
+        dct:description "Manage ontologies that define application domain" .
+
+}
+
+# ONTOLOGIES
+
+# namespace
+
+<model/ontologies/namespace/>
+{
+
+    <model/ontologies/namespace/> a adm:Item ;
+        sioc:has_container <model/ontologies/> ;
+        dct:title "Namespace" ;
+        foaf:primaryTopic ns: .
+
+    ns: a adm:Ontology ;
+        foaf:isPrimaryTopicOf <model/ontologies/namespace/> ;
+        rdfs:label "Namespace" ;
+        rdfs:comment "Namespace of the application" ;
+        owl:imports <https://w3id.org/atomgraph/linkeddatahub/default#> ;
+        owl:versionInfo "1.0-SNAPSHOT" .
+
+}

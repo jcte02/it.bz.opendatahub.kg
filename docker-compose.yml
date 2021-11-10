@@ -36,66 +36,46 @@ services:
     volumes:
       - ./ssl:/ssl
 
-  processor:
-    build:
-      context: infrastructure/docker/processor
-    environment:
-      ENDPOINT: ${ENDPOINT?}
-      GRAPH_STORE: ${GRAPH_STORE?}
-      ONTOLOGY: ${ONTOLOGY?}
-    volumes:
-      - ./infrastructure/docker/processor/config/noi.ttl:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/it/bz/opendatahub/kg/noi.ttl
-      - ./infrastructure/docker/processor/config/location-mapping.n3:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/custom-mapping.n3
-      - ./infrastructure/docker/processor/config/content.xml:/usr/local/tomcat/conf/Catalina/localhost/ROOT.xml
-
-  # is it usefult for production or only for development?
-  processor-nginx:
-    build:
-      context: infrastructure/docker/processor-nginx
-    depends_on:
-      - processor
-    ports:
-      - 8888:80
-    environment:
-      PROXY_PASS: http://processor:8080
-      PROXY_SET_HOST: ${HOST?}
-
-  email-server:
-    image: namshi/smtp
-    environment:
-      DISABLE_IPV6: 'true'
-  ######
-
   nginx:
     build:
       context: infrastructure/docker/nginx
     mem_limit: 128m
     ports:
-      - ${HTTP_PORT:-1333}:${HTTP_PORT:-1333}
+      - ${HTTP_PORT}:8080
+      - ${HTTPS_PORT}:8443
     environment:
-      HTTP_PORT: ${HTTP_PORT:-1333}
-      MAX_BODY_SIZE: 2097152
+      HTTPS_PORT: ${HTTPS_PORT?}
+      UPSTREAM_SERVER: linkeddatahub
+      SERVER_NAME: ${HOST?}
+      SERVER_HTTPS_PORT: 8433
+      SERVER_HTTP_PORT: 8080
+      SERVER_CERT_FILE: /etc/nginx/ssl/server.crt
+      SERVER_KEY_FILE: /etc/nginx/ssl/server.key
+      MAX_BOXY_SIZE: 2097152
+    volumes:
+      - ./ssl/server:/etx/nginx/ssl:ro
 
   linkeddatahub:
     build:
       context: infrastructure/docker/linkeddatahub
+      target: development
     environment:
       CATALINA_OPTS: -XX:+UseContainerSupport -XX:MaxRAMPercentage=75 # heap will use up to 75% of container's RAM
       TZ: Europe/Copenhagen
       PROXY_HOST: nginx
-      PROXY_HTTP_PORT: 1 # nginx http port
-      PROXY_HTTPS_PORT: 1 # nginx https port
-      PROTOCOL: http
-      HTTP_SCHEME: http
-      HOST: linkeddatahub
-      ABS_PATH: /
-      HTTP_PORT: 8080
-      HTTP_PROXY_NAME: likeddatahub
-      HTTP_PROXY_PORT: 1 # https port
-      HTTP_REDIRECT_PORT: 1# https port
-      HTTPS_PROXY_PORT: 1 # https port
+      PROXY_HTTP_PORT: 8080 # nginx http port
+      PROXY_HTTPS_PORT: 8443 # nginx https port
+      PROTOCOL: ${PROTOCOL?}
+      HTTP_SCHEME: https
+      HOST: ${HOST?}
+      ABS_PATH: ${ABS_PATH?}
+      HTTP_PORT: 7070
+      HTTP_PROXY_NAME: ${HOST?}
+      HTTP_PROXY_PORT: ${HTTPS_PORT?} # https port
+      HTTP_REDIRECT_PORT: ${HTTPS_PORT?} # https port
+      HTTPS_PROXY_PORT: ${HTTPS_PORT?} # https port
       HTTPS: 'false'
-      CLIENT_KEYSTORE_PASSWORD: 1# pwd
+      CLIENT_KEYSTORE_PASSWORD: ${SECRETARY_CERT_PASSWORD?} # pwd
       CLIENT_TRUSTSTORE_PASSWORD: LinkedDataHub
       SELF_SIGNED_CERT: 'true' # only on localhost
       SIGN_UP_CERT_VALIDITY: 180
@@ -104,7 +84,82 @@ services:
       MAIL_SMPT_HOST: email-server
       MAIL_SMTP_PORT: 25
       MAIL_USER: lineddatahub@localhost
-      OWNER_MBOX: 1 # owner mbox
+      OWNER_MBOX: ${OWNER_MBOX?} # owner mbox
+    volumes:
+      - ./ssl/server:/var/linkeddatahub/ssl/server:ro
+      - ./ssl/owner/public.pem:/var/linkeddatahub/ssl/owner/public.pem:ro
+      - ./ssl/secretary:/var/linkeddatahub/ssl/secretaty:ro
+      - ./uploads:/var/ww/linkeddatahub/uploads
 
-volumes:
-  ssl:
+  processor:
+    build:
+      context: infrastructure/docker/processor
+    environment:
+      ENDPOINT: ${ENDPOINT?}
+      GRAPH_STORE: ${GRAPH_STORE?}
+      ONTOLOGY: ${ONTOLOGY?}
+
+  processor-nginx:
+    build:
+      context: infrastructure/docker/processor-nginx
+    depends_on:
+      - processor
+    # only for development
+    ports:
+      - 8888:80
+    environment:
+      PROXY_PASS: http://processor:8080
+      PROXY_SET_HOST: ${HOST?}
+
+  fuseki-admin:
+    build:
+      context: infrastructure/docker/fuseki-admin
+    user: root
+    # only for development
+    ports:
+      - 3030:3030
+    volumes:
+      - ./data/admin:/fuseki/databases
+
+  fuseki-end-user:
+    build:
+      context: infrastructure/docker/fuseki-end-user
+    user: root
+    # only for development
+    ports:
+      - 3031:3030
+    volumes:
+      - ./data/end-user:/fuseki/databases
+
+  varnish-admin:
+    build:
+      context: infrastructure/docker/varnish-admin
+    user: root
+    depends_on:
+      - linkeddatahub
+    tmpfs: /var/lib/varnish:exec
+    environment:
+      BACKEND_HOST: fuseki-admin
+      BACKEND_PORT: 3030
+      CLIENT_HOST: linkeddatahub
+      VARNISH_TTL: 86400
+      VARNISH_SIZE: 1G
+
+  varnish-end-user:
+    build:
+      context: infrastructure/docker/varnish-end-user
+    user: root
+    depends_on:
+      - linkeddatahub
+    tmpfs: /var/lib/varnish:exec
+    environment:
+      BACKEND_HOST: fuseki-end-user
+      BACKEND_PORT: 3030
+      CLIENT_HOST: linkeddatahub
+      VARNISH_TTL: 86400
+      VARNISH_SIZE: 1G
+
+  email-server:
+    image: namshi/smtp
+    environment:
+      DISABLE_IPV6: 'true'

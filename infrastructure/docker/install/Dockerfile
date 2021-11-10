@@ -1,9 +1,10 @@
-FROM debian:stable-slim
+FROM debian:stable
 
 ARG JENA_VERSION=4.2.0
 
 # download and extract Jena
-RUN mkdir /jena && \
+RUN apt update && apt install -y curl && \
+  mkdir /jena && \
   curl -SL "https://archive.apache.org/dist/jena/binaries/apache-jena-${JENA_VERSION}.tar.gz" | \
   tar -xzf - -C /jena
 
