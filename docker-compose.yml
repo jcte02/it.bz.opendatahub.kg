@@ -20,7 +20,7 @@ services:
       OWNER_STATE_OR_PROVINCE: ${OWNER_STATE_OR_PROVINCE?}
       OWNER_COUNTRY_NAME: ${OWNER_COUNTRY_NAME?}
     volumes:
-      - ./ssl:/ssl
+      - ssl:/ssl
 
   install:
     build:
@@ -34,7 +34,7 @@ services:
       OWNER_CERT_PASSWORD: ${OWNER_CERT_PASSWORD?}
       ENDPOINT: ${ENDPOINT?}
     volumes:
-      - ./ssl:/ssl
+      - ssl:/ssl
 
   nginx:
     build:
@@ -49,11 +49,11 @@ services:
       SERVER_NAME: ${HOST?}
       SERVER_HTTPS_PORT: 8433
       SERVER_HTTP_PORT: 8080
-      SERVER_CERT_FILE: /etc/nginx/ssl/server.crt
-      SERVER_KEY_FILE: /etc/nginx/ssl/server.key
+      SERVER_CERT_FILE: /etc/nginx/ssl/server/server.crt
+      SERVER_KEY_FILE: /etc/nginx/ssl/server/server.key
       MAX_BOXY_SIZE: 2097152
     volumes:
-      - ./ssl/server:/etx/nginx/ssl:ro
+      - ssl:/etx/nginx/ssl:ro
 
   linkeddatahub:
     build:
@@ -81,15 +81,13 @@ services:
       SIGN_UP_CERT_VALIDITY: 180
       IMPORT_KEEPALIVE: 300000
       MAX_CONTENT_LENGHT: 2097152
-      MAIL_SMPT_HOST: email-server
+      MAIL_SMTP_HOST: email-server
       MAIL_SMTP_PORT: 25
       MAIL_USER: lineddatahub@localhost
       OWNER_MBOX: ${OWNER_MBOX?} # owner mbox
     volumes:
-      - ./ssl/server:/var/linkeddatahub/ssl/server:ro
-      - ./ssl/owner/public.pem:/var/linkeddatahub/ssl/owner/public.pem:ro
-      - ./ssl/secretary:/var/linkeddatahub/ssl/secretaty:ro
-      - ./uploads:/var/ww/linkeddatahub/uploads
+      - ssl:/var/linkeddatahub/ssl
+      - uploads:/var/ww/linkeddatahub/uploads
 
   processor:
     build:
@@ -119,7 +117,7 @@ services:
     ports:
       - 3030:3030
     volumes:
-      - ./data/admin:/fuseki/databases
+      - admin-data:/fuseki/databases
 
   fuseki-end-user:
     build:
@@ -129,7 +127,7 @@ services:
     ports:
       - 3031:3030
     volumes:
-      - ./data/end-user:/fuseki/databases
+      - end-user-data:/fuseki/databases
 
   varnish-admin:
     build:
@@ -163,3 +161,9 @@ services:
     image: namshi/smtp
     environment:
       DISABLE_IPV6: 'true'
+
+volumes:
+  ssl:
+  uploads:
+  admin-data:
+  end-user-data:
