@@ -200,4 +200,7 @@ openssl \
     -out "$secretary_cert" \
     -passout pass:"$secretary_cert_pwd"
 
+chmod a+r "$owner_public_key"
+chmod a+r "$secretary_cert"
+
 touch "$out_folder/.setup-done"
