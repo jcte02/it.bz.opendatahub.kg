@@ -29,7 +29,9 @@ RUN curl https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/${SAXON_VERSION}/S
 
 WORKDIR $CATALINA_HOME
 
-ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
+COPY --chown=ldh:ldh ./wait-setup.sh wait-setup.sh
+
+ENTRYPOINT ["./wait-setup.sh"]
 
 COPY config/dev.log4j.properties /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/log4j.properties
 COPY datasets/system-varnish.trig /var/linkeddatahub/datasets/system.trig
