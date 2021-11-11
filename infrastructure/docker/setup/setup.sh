@@ -22,14 +22,14 @@ server_public_key="${out_folder}/server/server.key"
 
 owner_alias="owner"
 owner_keystore="${out_folder}/owner/keystore.p12"
-owner_cert_pwd="$2"
+owner_cert_pwd="${!2}"
 owner_cert="${out_folder}/owner/cert.pem"
 owner_public_key="${out_folder}/owner/public.pem"
 
 secretary_alias="secretary"
 secretary_keystore="${out_folder}/secretary/keystore.p12"
 secretary_cert="${out_folder}/secretary/cert.pem"
-secretary_cert_pwd="$3"
+secretary_cert_pwd="${!3}"
 secretary_cert_dname="CN=LDH, OU=LDH, O=AtomGraph, L=Copenhagen, ST=Denmark, C=DK"
 
 validity="$4"
