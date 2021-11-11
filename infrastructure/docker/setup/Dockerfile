@@ -4,5 +4,4 @@ RUN apt update && apt install uuid-runtime
 
 COPY setup.sh /entrypoint.sh
 
-ENTRYPOINT [ "./entrypoint.sh" ]
-CMD [ "/ssl", "$OWNER_CERT_PASSWORD", "$SECRETARY_CERT_PASSWORD", "36500" ]
+ENTRYPOINT [ "./entrypoint.sh", "/ssl", "OWNER_CERT_PASSWORD", "SECRETARY_CERT_PASSWORD", "36500" ]

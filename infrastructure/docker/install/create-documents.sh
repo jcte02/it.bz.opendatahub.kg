@@ -24,7 +24,7 @@ pwd=$(realpath -s "$PWD")
 
 ### SERVICE
 
-pushd . && cd "$SCRIPT_ROOT"
+pushd . && cd "$SCRIPT_ROOT" || exit
 
 doc=$(./create-generic-service.sh \
 -b "$base" \
@@ -43,11 +43,11 @@ ntriples=$(./get-document.sh \
 
 service=$(echo "$ntriples" | sed -rn "s/<(.*)> <http:\/\/xmlns.com\/foaf\/0.1\/isPrimaryTopicOf> <${doc//\//\\/}> \./\1/p")
 
-popd
+popd || exit
 
 ### ONTOLOGY
 
-pushd . && cd "$SCRIPT_ROOT/admin/model"
+pushd . && cd "$SCRIPT_ROOT/admin/model" || exit
 
 query="${base}admin/model/ontologies/namespace/#SelectContainedPlaces"
 
@@ -62,9 +62,9 @@ query="${base}admin/model/ontologies/namespace/#SelectContainedPlaces"
 --service "$service" \
 "${request_base}admin/model/ontologies/namespace/"
 
-popd
+popd || exit
 
-pushd . && cd "$SCRIPT_ROOT"
+pushd . && cd "$SCRIPT_ROOT" || exit
 
 ./create-content.sh \
 -b "${base}admin/" \
@@ -74,11 +74,11 @@ pushd . && cd "$SCRIPT_ROOT"
 --first "$query" \
 "${request_base}admin/model/ontologies/namespace/"
 
-popd
+popd || exit
 
 ### QUERIES
 
-pushd . && cd "$SCRIPT_ROOT"
+pushd . && cd "$SCRIPT_ROOT" || exit
 
 ### lodging businesses
 
@@ -305,4 +305,4 @@ echo -e "<${doc}> <https://w3id.org/atomgraph/linkeddatahub/domain#content> <${d
 --content-type 'text/turtle' \
 "$doc"
 
-popd
+popd || exit
