@@ -26,13 +26,9 @@ services:
     build:
       context: infrastructure/docker/install
     environment:
-      PROTOCOL: ${PROTOCOL?}
-      HTTP_PORT: ${HTTP_PORT?}
-      HTTPS_PORT: ${HTTPS_PORT?}
-      HOST: ${HOST?}
-      ABS_PATH: ${ABS_PATH?}
-      OWNER_CERT_PASSWORD: ${OWNER_CERT_PASSWORD?}
+      BASE: http://linkeddatahub:7070/
       ENDPOINT: ${ENDPOINT?}
+      OWNER_CERT_PASSWORD: ${OWNER_CERT_PASSWORD?}
     volumes:
       - ssl:/ssl
 
@@ -46,14 +42,15 @@ services:
     environment:
       HTTPS_PORT: ${HTTPS_PORT?}
       UPSTREAM_SERVER: linkeddatahub
+      UPSTREAM_HTTP_PORT: 7070
       SERVER_NAME: ${HOST?}
       SERVER_HTTPS_PORT: 8433
       SERVER_HTTP_PORT: 8080
       SERVER_CERT_FILE: /etc/nginx/ssl/server/server.crt
       SERVER_KEY_FILE: /etc/nginx/ssl/server/server.key
-      MAX_BOXY_SIZE: 2097152
+      BODY_MAX_SIZE: 2097152
     volumes:
-      - ssl:/etx/nginx/ssl:ro
+      - ssl:/etc/nginx/ssl:ro
 
   linkeddatahub:
     build:
@@ -85,6 +82,8 @@ services:
       MAIL_SMTP_PORT: 25
       MAIL_USER: lineddatahub@localhost
       OWNER_MBOX: ${OWNER_MBOX?} # owner mbox
+    ports:
+      - 7070:7070
     volumes:
       - ssl:/var/linkeddatahub/ssl
       - uploads:/var/ww/linkeddatahub/uploads
