@@ -121,8 +121,8 @@ services:
     mem_limit: 512m
     environment:
       - CATALINA_OPTS=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75 # heap will use up to 75% of container's RAM
-      - ENDPOINT="https://sparql.opendatahub.testingmachine.eu/sparql"
-      - GRAPH_STORE="https://sparql.opendatahub.testingmachine.eu/service" # not used but needs a value
+      - ENDPOINT="https://odh-kg.ontopic.cloud:4443/sparql"
+      - GRAPH_STORE="https://odh-kg.ontopic.cloud:4443/service" # not used but needs a value
       - ONTOLOGY="https://kg.opendatahub.bz.it/ns/templates#"
   processor-nginx:
     build:
